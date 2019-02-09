@@ -1,0 +1,56 @@
+---
+
+- hosts: all
+  become: true
+
+  tasks:
+  - name: Instalar PostgreSQL
+    apt: name={{item}} state=installed
+    with_items:
+        - postgresql
+        - postgresql-contrib
+        - libpq-dev
+        - python-psycopg2
+        - rsync
+
+- hosts: all
+  become: yes
+  become_user: postgres
+
+  vars:
+    dbname: dbpolitecnico
+    dbuser: frodo
+    dbpassword: bolson
+    dbdump: dbpolitecnico.sql
+
+  tasks:
+  - name: Iniciar PostgreSQL
+    service: name=postgresql state=started
+    
+  - name: Crear la base de datos
+    postgresql_db: name={{dbname}}
+
+  - name: Crear un usuario con privilegios en esa base de datos
+    postgresql_user: db={{dbname}} name={{dbuser}} password={{dbpassword}} priv=ALL
+
+  - name: Asegurarse que otros usuarios no tengan privilegios sobre dicha base de datos
+    postgresql_privs: db={{dbname}} role=PUBLIC type=database priv=ALL state=absent
+
+  - name: Importar base de datos
+    become: yes
+    become_user: postgres
+    shell: psql {{dbname}} < /vagrant/{{dbdump}}
+
+  - name: Cambiar dueño de la base de datos
+    become: yes
+    become_user: postgres
+    shell: psql -c "ALTER DATABASE {{dbname}} OWNER TO {{dbuser}}"
+
+  - name: Modificar fichero de configuración de PostgreSQL
+    template: src=postgres_config/postgresql.conf.j2 dest=/etc/postgresql/9.3/main/postgresql.conf
+
+  - name: Modificar fichero de permisos de PostgreSQL
+    template: src=postgres_config/pg_hba.conf.j2 dest=/etc/postgresql/9.3/main/pg_hba.conf
+
+  - name: Reiniciar PostgreSQL
+    service: name=postgresql state=restarted

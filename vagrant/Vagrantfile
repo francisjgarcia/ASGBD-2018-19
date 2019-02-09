@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+BOX_IMAGE = "ubuntu/trusty64"
+
+Vagrant.configure("2") do |config|
+  config.vm.define "Carcharias" do |subconfig|
+    subconfig.vm.provider :virtualbox do |v|
+      v.name = "Carcharias"
+    end
+    subconfig.vm.box = BOX_IMAGE
+    subconfig.vm.hostname = "Carcharias"
+    subconfig.vm.network :private_network, ip: "192.168.6.3"
+  end
+
+  config.vm.define "Cuvier" do |subconfig|
+    subconfig.vm.provider :virtualbox do |v|
+      v.name = "Cuvier"
+    end
+    subconfig.vm.box = BOX_IMAGE
+    subconfig.vm.hostname = "Cuvier"
+    subconfig.vm.network :private_network, ip: "192.168.6.4"
+  end
+
+  config.vm.define "Mokarran" do |subconfig|
+    subconfig.vm.provider :virtualbox do |v|
+      v.name = "Mokarran"
+    end
+    subconfig.vm.box = BOX_IMAGE
+    subconfig.vm.hostname = "Mokarran"
+    subconfig.vm.network :private_network, ip: "192.168.6.5"
+  end
+
+  config.vm.define "Leucas" do |subconfig|
+    subconfig.vm.provider :virtualbox do |v|
+      v.name = "Leucas"
+    end
+    subconfig.vm.box = BOX_IMAGE
+    subconfig.vm.hostname = "Leucas"
+    subconfig.vm.network :private_network, ip: "192.168.6.6"
+  end
+
+  config.vm.provision "ansible", run: "always" do |ansible|
+    ansible.playbook = "postgres.yml"
+  end
+end
