@@ -49,7 +49,7 @@
            count: "{{ count }}"
         register: ec2
 
-      - name: OBtener variables EC2
+      - name: Obtener variables EC2
         debug: var=ec2
       - name: Obtener dirección IP
         debug: var=ec2.instances[0].public_ip
