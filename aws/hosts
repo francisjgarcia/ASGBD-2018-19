@@ -1,7 +1,4 @@
-[master]
-Carcharias
-
-[slave]
+[postgres]
 Cuvier
 Mokarran
 Leucas
